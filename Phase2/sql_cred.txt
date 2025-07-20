@@ -1,0 +1,8 @@
+DRIVER={ODBC Driver 17 for SQL Server};
+SERVER=ge-prd.database.windows.net;
+DATABASE=GreenEnergy_DBP;
+UID=Nalinpgdde@chndsrnvsgmail.onmicrosoft.com;
+PWD=Neilapple7#;
+Authentication=ActiveDirectoryPassword;
+Encrypt=yes;
+TrustServerCertificate=no;

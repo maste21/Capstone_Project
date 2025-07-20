@@ -1,0 +1,8 @@
+cd C:\Users\HP\Desktop\Week6
+
+streamlit run streamlit_app.py
+
+
+
+
+streamlit run energy_dashboard.py
