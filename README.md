@@ -46,8 +46,8 @@ streamlit run Phase3/Week6/dashboard2.py
 
 ## important Notes
 
-- Ensure your *data files* (CSV or other inputs) are in the correct paths as expected by the scripts/notebooks.
-- Modify any hardcoded file paths if needed to match your local directory.
+- **Ensure your *data files* (CSV or other inputs) are in the correct paths as expected by the scripts/notebooks**
+- **Modify any hardcoded file paths if needed to match your local directory**
 
 
 ## Author
