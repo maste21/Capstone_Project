@@ -40,7 +40,7 @@ Core packages include:
 *Open and run notebooks using Jupyter.*
 *The code is given in a way that running the phase 1 script only will trigger the rest internally and also the dashboards*
 
- *open the "Bengaluru Energy Dataset Cleaning and Merging.ipynb" in jupyter notebook and click run task*
+ *open the "Bengaluru Energy Dataset Cleaning and Merging.ipynb" in jupyter notebook and run the code*
 
 ### Streamlit Dashboards (Phase 3)
 
