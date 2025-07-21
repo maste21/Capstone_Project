@@ -9,8 +9,9 @@ Follow these steps to set up and run the project locally.
 
 ### Clone the Repository
 
-git clone https://github.com/maste21/Capstone_Project.git
-cd Capstone_Project
+    git clone https://github.com/maste21/Capstone_Project.git
+    
+    cd Capstone_Project
 
 ## Requirements
 
@@ -51,9 +52,9 @@ streamlit run Phase3/Week6/dashboard2.py
 
 ## Author
 
-Arun
-Chandu Srinivas
-nalin
-nits
-akash
-----
+    Arun
+    Chandu Srinivas
+    Nalin
+    Nitin
+    Akash
+
