@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import pyodbc
 from datetime import datetime, timedelta
 import plotly.graph_objects as go
 import plotly.express as px
@@ -128,59 +129,62 @@ def create_sample_data():
     df = pd.DataFrame(data)
     return df
 
+
+@st.cache_data
 @st.cache_data
 def load_energy_data():
-    """Load energy data with simple error handling."""
+    """Load energy data from Azure SQL Server or fallback to CSV/sample."""
     try:
-        # Try to load the actual file first
-        for delimiter in ['\t', ',', ';']:
-            try:
-                df = pd.read_csv('energy_features01.csv', delimiter=delimiter)
-                if len(df.columns) > 1:
-                    break
-            except:
-                continue
-        
-        # Check if we loaded actual data
-        if 'df' not in locals() or len(df.columns) <= 1:
-            raise FileNotFoundError("Could not load CSV file")
-        
-        # Check if we have the right columns
-        if 'day' not in df.columns:
-            raise ValueError("CSV file needs a 'day' column with dates")
-            
-        # Convert dates
+        conn = pyodbc.connect(
+            "DRIVER={ODBC Driver 17 for SQL Server};"
+            "SERVER=ge-prd.database.windows.net;"
+            "DATABASE=GreenEnergy_DBP;"
+            "UID=Nalinpgdde@chndsrnvsgmail.onmicrosoft.com;"
+            "PWD=Neilapple7#;"
+            "Authentication=ActiveDirectoryPassword;"
+            "Encrypt=yes;"
+            "TrustServerCertificate=no;"
+        )
+
+        query = """
+            SELECT 
+                CAST([day] AS DATE) AS day,
+                [daily_avg_kwh] AS daily_usage,
+                [peak_kwh] AS peak_usage,
+                [total_solar] AS solar_generated
+            FROM [dbo].[vw_daily_consumption_summary]
+        """
+
+        df = pd.read_sql(query, conn)
+
         df['day'] = pd.to_datetime(df['day'])
-        
-        # Make sure we have the energy columns
-        energy_cols = ['avg_consumption_kwh', 'peak_consumption_kwh', 'solar_output_kwh']
-        for col in energy_cols:
-            if col not in df.columns:
-                df[col] = 0  # Add missing columns as zeros
-        
-        # Group by day and get daily totals
-        daily_df = df.groupby('day').agg({
-            'avg_consumption_kwh': 'mean',
-            'peak_consumption_kwh': 'max',
-            'solar_output_kwh': 'sum'
-        }).reset_index()
-        
-        # Rename for clarity
-        daily_df.columns = ['day', 'daily_usage', 'peak_usage', 'solar_generated']
-        
-    except (FileNotFoundError, ValueError) as e:
-        # If we can't load the file, create sample data
-        st.info("📝 Using sample data for demonstration. To use your own data, upload 'energy_features01.csv' to the same directory.")
-        daily_df = create_sample_data()
-    
-    # Calculate money saved and net usage
-    daily_df['money_saved'] = daily_df['solar_generated'] * 0.12  # 12 cents per kWh
-    daily_df['net_usage'] = daily_df['daily_usage'] - daily_df['solar_generated']
-    daily_df['net_usage'] = daily_df['net_usage'].clip(lower=0)  # Can't be negative
-    
-    daily_df = daily_df.set_index('day').sort_index()
-    
-    return daily_df
+        df = df.set_index('day').sort_index()
+        df['money_saved'] = df['solar_generated'] * 0.12
+        df['net_usage'] = (df['daily_usage'] - df['solar_generated']).clip(lower=0)
+
+        conn.close()
+
+        return df
+
+    except Exception as e:
+        st.warning(f"⚠️ Could not load from SQL: {e}")
+
+        try:
+            df = pd.read_csv('energy_features01.csv')
+            df['day'] = pd.to_datetime(df['day'])
+            df = df.set_index('day').sort_index()
+            df['money_saved'] = df['solar_output_kwh'] * 0.12
+            df['net_usage'] = (df['avg_consumption_kwh'] - df['solar_output_kwh']).clip(lower=0)
+            df = df.rename(columns={
+                'avg_consumption_kwh': 'daily_usage',
+                'peak_consumption_kwh': 'peak_usage',
+                'solar_output_kwh': 'solar_generated'
+            })
+            return df
+
+        except:
+            st.info("Using sample data.")
+            return create_sample_data()
 
 def simple_forecast(data, days=30):
     """Simple forecast that's easy to understand."""

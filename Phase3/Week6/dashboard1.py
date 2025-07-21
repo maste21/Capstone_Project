@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import pyodbc
 from statsmodels.tsa.arima.model import ARIMA
 from datetime import datetime, timedelta
 import warnings
@@ -48,16 +49,28 @@ st.markdown("""
 
 @st.cache_data
 def load_energy_data():
-    """Load your energy data"""
+    """Load your energy data directly from SQL Server"""
     try:
-        df = pd.read_csv('vw_daily_consumption_summary.csv')
-        df['day'] = pd.to_datetime(df['day'], format='%d-%m-%Y')
+        conn_str = (
+            "DRIVER={ODBC Driver 17 for SQL Server};"
+            "SERVER=ge-prd.database.windows.net;"
+            "DATABASE=GreenEnergy_DBP;"
+            "UID=Nalinpgdde@chndsrnvsgmail.onmicrosoft.com;"
+            "PWD=Neilapple7#;"
+            "Authentication=ActiveDirectoryPassword;"
+            "Encrypt=yes;"
+            "TrustServerCertificate=no;"
+        )
+        conn = pyodbc.connect(conn_str)
+        query = "SELECT * FROM [dbo].[vw_daily_consumption_summary]"
+        df = pd.read_sql(query, conn)
+        
+        df['day'] = pd.to_datetime(df['day'], format='%Y-%m-%d')  # Assuming ISO format
         df = df.set_index('day')
         df = df.sort_index()
+
+        conn.close()
         return df
-    except FileNotFoundError:
-        st.error("⚠️ Can't find your energy data file. Make sure 'vw_daily_consumption_summary.csv' is in the same folder.")
-        return None
     except Exception as e:
         st.error(f"⚠️ Problem loading your data: {e}")
         return None
