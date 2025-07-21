@@ -13,6 +13,12 @@ Follow these steps to set up and run the project locally.
     
     cd Capstone_Project
 
+## Important Notes
+
+- **Ensure your *data files* (CSV or other inputs) are in the correct paths as expected by the scripts/notebooks**
+- **Modify any hardcoded file paths if needed to match your local directory**
+
+
 ## Requirements
 
 The required Python libraries are listed in requirements.txt.  
@@ -44,11 +50,6 @@ Optionally Run dashboards with Streamlit using bash to excecute only dashboards:
      
      streamlit run Phase3/Week6/dashboard2.py
 
-
-## Important Notes
-
-- **Ensure your *data files* (CSV or other inputs) are in the correct paths as expected by the scripts/notebooks**
-- **Modify any hardcoded file paths if needed to match your local directory**
 
 
 ## Author
